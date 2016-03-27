@@ -72,6 +72,10 @@ public class ThreeDeePanel extends JPanel {
         initGUI();
     }
 
+    /**
+     * simple enum to determine the shape of a model
+     *
+     */
     private enum MyShape {
         ELLIPSE, BOX
     }
@@ -145,7 +149,7 @@ public class ThreeDeePanel extends JPanel {
      */
     private void generateConveyorModel() {
         // x, y, width, height, depth
-        // sidebar
+        // 1st sidebar
         makeShape(89, 134, 1, 400, 30, 70, MyShape.BOX, Color.LIGHTSEAGREEN);
         // roller pins
         for (int i = 0; i < rollerPinCount; i++) {
@@ -285,6 +289,18 @@ public class ThreeDeePanel extends JPanel {
         return hbox;
     }
 
+    /**
+     * for creating simple 3 shape
+     * @param x x position of this shape
+     * @param y y position of this shape
+     * @param z z position of this shape
+     * @param width width of this shape
+     * @param height height of this shape
+     * @param depth depth of this shape
+     * @param shape shape of this shape
+     * @param grey color of this shape
+     * @return
+     */
     private Shape3D makeShape(double x, double y, double z, double width, double height, double depth, MyShape shape,
                               Color grey) {
         Shape3D c = getShape3D(width, height, depth, shape);
@@ -326,6 +342,14 @@ public class ThreeDeePanel extends JPanel {
         return c;
     }
 
+    /**
+     * determine which shape to make
+     * @param width width of shape or in case of ELLIPSE, it's height
+     * @param height height of shape or in case of ELLIPSE, it's radius
+     * @param depth depth of shape, only if a box
+     * @param shape which shape to make
+     * @return
+     */
     private Shape3D getShape3D(double width, double height, double depth, MyShape shape) {
         Shape3D c = null;
         switch (shape) {
@@ -402,6 +426,10 @@ public class ThreeDeePanel extends JPanel {
         return c;
     }
 
+    /**
+     * sets only the pallet visible
+     * @param vis set visible
+     */
     public void setPalletVisibile(boolean vis) {
         pallet.setVisible(vis);
     }
@@ -411,13 +439,22 @@ public class ThreeDeePanel extends JPanel {
         tireHole.setVisible(vis);
     }
 
+    /**
+     * sets only the tire visible
+     * @param vis set visible
+     */
     public void setPalletTireVisible(boolean vis) {
         pallet.setVisible(vis);
         tire.setVisible(vis);
         tireHole.setVisible(vis);
     }
 
-    public void updateState(String palletPdo, String tirePdo) {
+    /**
+     * Updates the state if the model
+     * @param palletStr name of the pallet
+     * @param tireStr name of the tire
+     */
+    public void updateState(String palletStr, String tireStr) {
         if (moving) {
             System.out.println("stuff is moving");
             return;
@@ -426,27 +463,27 @@ public class ThreeDeePanel extends JPanel {
         }
         double transX = pallet.getTranslateX();
 
-        updateToolTips(palletPdo, tirePdo);
-        if (transX == PALLET_X_OFFSCREEN_RIGHT && palletPdo != null) {
-            tire.setVisible(tirePdo != null);
-            String palletTUID = palletPdo;
+        updateToolTips(palletStr, tireStr);
+        if (transX == PALLET_X_OFFSCREEN_RIGHT && palletStr != null) {
+            tire.setVisible(tireStr != null);
+            String palletTUID = palletStr;
             pallet.setUserData(palletTUID);
             System.err.println("tu arrived, move in");
             movePalletIn();
-        } else if (transX == PALLET_X_ONSCREEN_CENTER && palletPdo == null) {
+        } else if (transX == PALLET_X_ONSCREEN_CENTER && palletStr == null) {
             pallet.setUserData(-1);
             System.err.println("empty cnv, send out");
             movePalletOut();
         } else if (transX == PALLET_X_ONSCREEN_CENTER) {
             // pallet already in position, check if new pallet
             String oldPalletTUID = (pallet.getUserData() == null ? "" : pallet.getUserData().toString());
-            String newPalletTUID = palletPdo;
+            String newPalletTUID = palletStr;
             if (!oldPalletTUID.equals(newPalletTUID)) {
                 // different id, move old out and new in
-                movePalletOutIn(palletPdo, tirePdo);
+                movePalletOutIn(palletStr, tireStr);
                 System.out.println("new thing on conveyor, move old out, new in");
             } else {
-                tire.setVisible(tirePdo != null);
+                tire.setVisible(tireStr != null);
 //				System.err.println("same tu on cnv, do nothing");
                 // same tu already present, do nothing
             }
@@ -455,6 +492,9 @@ public class ThreeDeePanel extends JPanel {
 
     }
 
+    /**
+     * moves the pallets off screen
+     */
     public void movePalletOut() {
         Timeline timeline = new Timeline();
         KeyValue kv = new KeyValue(pallet.translateXProperty(), PALLET_X_OFFSCREEN_LEFT);
@@ -468,6 +508,11 @@ public class ThreeDeePanel extends JPanel {
         timeline.play();
     }
 
+    /**
+     * moves the pallet offscreen and back and sets the visbility of the tire depending on if a tireStr was given
+     * @param palletStr name of the tire
+     * @param tireStr name of the tire, if null -> invisible
+     */
     public void movePalletOutIn(String palletStr, String tireStr) {
         Timeline timeline = new Timeline();
         KeyValue kv = new KeyValue(pallet.translateXProperty(), PALLET_X_OFFSCREEN_LEFT);
@@ -484,6 +529,9 @@ public class ThreeDeePanel extends JPanel {
         timeline.play();
     }
 
+    /**
+     * moves the pallet in from offscreen
+     */
     public void movePalletIn() {
         if (!(pallet.getTranslateX() == PALLET_X_ONSCREEN_CENTER)) {
             Timeline timeline = new Timeline();
@@ -498,6 +546,11 @@ public class ThreeDeePanel extends JPanel {
         }
     }
 
+    /**
+     * set the initial state
+     * @param palletStr if null, pallets is offscreen
+     * @param tireStr if null, tire is invisible
+     */
     public void initState(String palletStr, String tireStr) {
         if (palletStr != null) {
             tire.setVisible(tireStr != null);
@@ -508,16 +561,21 @@ public class ThreeDeePanel extends JPanel {
 
     }
 
-    private void updateToolTips(String palletPdo, String tirePdo) {
+    /**
+     * updates the tooltips that are shown when hovering the object
+     * @param palletStr the text for pallet
+     * @param tireStr the text for tire
+     */
+    private void updateToolTips(String palletStr, String tireStr) {
         StringBuilder sb = new StringBuilder();
-        if (palletPdo != null) {
-            sb.append(String.format("PalletString: %s \n", palletPdo));
+        if (palletStr != null) {
+            sb.append(String.format("PalletString: %s \n", palletStr));
             Tooltip ttPallet = new Tooltip(sb.toString());
             Tooltip.install(pallet, ttPallet);
         }
         sb.setLength(0);
-        if (tirePdo != null) {
-            sb.append(String.format("TireString: %s \n", tirePdo));
+        if (tireStr != null) {
+            sb.append(String.format("TireString: %s \n", tireStr));
             Tooltip ttTire = new Tooltip(sb.toString());
             Tooltip.install(tire, ttTire);
 
