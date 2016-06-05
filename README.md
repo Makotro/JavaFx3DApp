@@ -8,13 +8,13 @@ You can add this to any swing or awt layout JPanel and control its functions wit
 You can look into the MainFrame.java for example.
 
 static image
-![Example](images/at_position.jpg "Example")
+![Example](images/static.jpg "Example")
 
 moving out
-![Example](images/going_out.jpg "Example")
+![Example](images/out.jpg "Example")
 
 moving in
-![Example](images/going_in.jpg "Example")
+![Example](images/in.jpg "Example")
 
 You can click a 3d node and manipulate it with the sliders if you for some reason like to
 ![Example](images/manipulate.jpg "Example")
