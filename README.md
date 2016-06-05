@@ -1,5 +1,5 @@
 # JavaFx3DApp
-A simple 3D model made in JavaFX that is compatible with swing.
+A simple 3D model made in JavaFX that is compatible with swing. The main purpose is to demonstrate 3d capabilities in swing.
 
 The focus is the class ThreeDeePanel.java that is just an extended JPanel with some JavaFX 3d modeling in it that displays a (very rough) 3-Dimensional conveyor with a pallet on it.
 
